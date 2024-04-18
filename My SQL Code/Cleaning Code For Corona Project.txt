@@ -1,0 +1,464 @@
+-- Rename Table
+ALTER TABLE owid_covid_data_1_
+RENAME TO covid_data ; 
+
+-- Remove Wrong data 
+DELETE FROM covid_data 
+WHERE iso_code = "iso_code" ;
+
+
+-- ADD id Column AS primary key
+ALTER TABLE covid_data
+ADD COLUMN id INT NOT NULL PRIMARY KEY AUTO_INCREMENT ;
+
+
+
+-- DELETE extra empty rows
+DELETE FROM covid_data 
+WHERE id > 365513 ; 
+
+
+
+
+
+-- table of primary_data 
+CREATE TABLE primary_data (
+    id INT PRIMARY KEY,
+    date DATE ,
+    continent VARCHAR(255),
+    location VARCHAR(255),
+    population FLOAT
+);
+
+
+-- table of total_percentage_cases_deaths_vs_population
+CREATE TABLE total_percentage_cases_deaths_vs_population (
+    id INT ,
+    total_cases FLOAT,
+    total_deaths FLOAT,
+    new_cases FLOAT,
+    new_deaths FLOAT ,
+    FOREIGN KEY (id) REFERENCES primary_data(id)
+    
+);
+
+
+-- table of vaccination_per_population
+CREATE TABLE vaccination_per_population (
+    id INT,
+    total_vaccinations FLOAT,
+    people_vaccinated FLOAT,
+    people_fully_vaccinated FLOAT,
+    total_boosters FLOAT ,
+    new_vaccinations FLOAT ,
+    FOREIGN KEY (id) REFERENCES primary_data(id)
+);
+
+
+-- table of preperation_of_country
+CREATE TABLE preperation_of_country (
+    id INT ,
+    gdp_per_capita DOUBLE ,
+    extreme_poverty FLOAT ,
+    handwashing_facilities FLOAT,
+    FOREIGN KEY (id) REFERENCES primary_data(id)
+);
+
+
+-- table of Health_sector_preparations
+CREATE TABLE Health_sector_preparations (
+    id INT,
+    hospital_beds_per_thousand FLOAT,
+    icu_patients FLOAT,
+    hosp_patients FLOAT,
+    weekly_icu_admissions FLOAT ,
+    weekly_hosp_admissions FLOAT ,
+    total_tests FLOAT ,
+    new_tests FLOAT ,
+    FOREIGN KEY (id) REFERENCES primary_data(id)
+);
+
+
+    
+-- table of desease_and_bad_happites       
+CREATE TABLE desease_and_bad_happites (
+    id INT ,
+    cardiovasc_death_rate FLOAT ,
+    diabetes_prevalence FLOAT,
+    male_smokers FLOAT,
+    female_smokers FLOAT,
+    FOREIGN KEY (id) REFERENCES primary_data(id)
+);
+
+
+-- table of life_expectancy_and_human_development_index
+CREATE TABLE life_expectancy_and_human_development_index (
+    id INT ,
+    life_expectancy FLOAT ,
+    human_development_index FLOAT,
+    median_age FLOAT,
+    aged_65_older FLOAT,
+    aged_70_older FLOAT,
+    FOREIGN KEY (id) REFERENCES primary_data(id)
+);
+
+
+
+-- Insert into primary_data
+INSERT INTO primary_data (id, date, continent, location, population)
+SELECT id, date, continent, location, population
+FROM covid_data;
+
+
+-- Insert into total_percentage_cases_deaths_vs_population
+INSERT INTO total_percentage_cases_deaths_vs_population (id, total_cases, total_deaths, new_cases, new_deaths)
+SELECT id, total_cases, total_deaths, new_cases, new_deaths
+FROM covid_data;
+
+
+-- Insert into vaccination_per_population
+ INSERT INTO vaccination_per_population(id,total_vaccinations,people_vaccinated,people_fully_vaccinated,total_boosters,new_vaccinations) 
+SELECT id,total_vaccinations,people_vaccinated,people_fully_vaccinated,total_boosters,new_vaccinations
+FROM covid_data;
+
+-- Insert into preperation_of_country
+INSERT INTO preperation_of_country (id,gdp_per_capita, extreme_poverty, handwashing_facilities)
+SELECT id,gdp_per_capita, extreme_poverty, handwashing_facilities
+FROM covid_data;
+
+
+-- INSERT INTO table of Health_sector_preparations
+INSERT INTO Health_sector_preparations (id, hospital_beds_per_thousand, icu_patients, hosp_patients, weekly_icu_admissions,weekly_hosp_admissions,total_tests,new_tests)
+SELECT id, hospital_beds_per_thousand, icu_patients, hosp_patients, weekly_icu_admissions,weekly_hosp_admissions,total_tests,new_tests
+FROM covid_data;
+
+
+-- INSERT INTO table of desease_and_bad_happites
+INSERT INTO desease_and_bad_happites (id, cardiovasc_death_rate, diabetes_prevalence, male_smokers, female_smokers)
+SELECT id, cardiovasc_death_rate, diabetes_prevalence, male_smokers, female_smokers
+FROM covid_data;
+
+
+-- INSERT INTO table of life_expectancy_and_human_development_index
+INSERT INTO life_expectancy_and_human_development_index (id, life_expectancy, human_development_index,median_age,aged_65_older,aged_70_older)
+SELECT id, life_expectancy, human_development_index ,median_age,aged_65_older,aged_70_older
+FROM covid_data;
+
+
+
+
+UPDATE primary_data pd
+JOIN covid_data cd ON pd.id = cd.id
+SET pd.date = cd.date,
+    pd.continent = cd.continent,
+    pd.location = cd.location,
+    pd.population = cd.population;
+    
+UPDATE total_percentage_cases_deaths_vs_population tpcd
+JOIN covid_data cd ON tpcd.id = cd.id
+SET tpcd.total_cases = cd.total_cases,
+    tpcd.total_deaths = cd.total_deaths,
+    tpcd.new_cases = cd.new_cases,
+    tpcd.new_deaths = cd.new_deaths;
+    
+UPDATE vaccination_per_population vpp
+JOIN covid_data cd ON vpp.id = cd.id
+SET vpp.total_vaccinations = cd.total_vaccinations,
+    vpp.people_vaccinated = cd.people_vaccinated,
+    vpp.people_fully_vaccinated = cd.people_fully_vaccinated,
+    vpp.total_boosters = cd.total_boosters,
+    vpp.new_vaccinations = cd.new_vaccinations;
+
+
+UPDATE preperation_of_country poc
+JOIN covid_data cd ON poc.id = cd.id
+SET poc.gdp_per_capita = cd.gdp_per_capita,
+    poc.extreme_poverty = cd.extreme_poverty,
+    poc.handwashing_facilities = cd.handwashing_facilities;
+
+
+UPDATE Health_sector_preparations hsp
+JOIN covid_data cd ON hsp.id = cd.id
+SET hsp.hospital_beds_per_thousand = cd.hospital_beds_per_thousand,
+    hsp.icu_patients = cd.icu_patients,
+    hsp.hosp_patients = cd.hosp_patients,
+    hsp.weekly_icu_admissions = cd.weekly_icu_admissions,
+    hsp.weekly_hosp_admissions = cd.weekly_hosp_admissions,
+    hsp.total_tests = cd.total_tests,
+    hsp.new_tests = cd.new_tests;
+
+
+UPDATE desease_and_bad_happites dbh
+JOIN covid_data cd ON dbh.id = cd.id
+SET dbh.cardiovasc_death_rate = cd.cardiovasc_death_rate,
+    dbh.diabetes_prevalence = cd.diabetes_prevalence;
+    -- male_smokers and female_smokers are excluded
+
+
+UPDATE life_expectancy_and_human_development_index lehdi
+JOIN covid_data cd ON lehdi.id = cd.id
+SET lehdi.life_expectancy = cd.life_expectancy,
+    lehdi.human_development_index = cd.human_development_index,
+    lehdi.median_age = cd.median_age,
+    lehdi.aged_65_older = cd.aged_65_older,
+    lehdi.aged_70_older = cd.aged_70_older;
+
+
+
+----------------------------------------------------------------------------------------
+
+-- Format Date in table of primary data 
+ALTER TABLE primary_data ADD COLUMN new_date_column VARCHAR(255);
+UPDATE primary_data 
+SET new_date_column = DATE_FORMAT(STR_TO_DATE(date, '%Y-%m-%d'), '%M %d, %Y');
+
+
+
+-- TO SPLIT Date Column for three columns year and month and day for this formula :  
+ALTER TABLE primary_data
+ADD COLUMN days INT ;
+
+ALTER TABLE primary_data
+ADD COLUMN months VARCHAR(150);
+
+ALTER TABLE primary_data
+ADD COLUMN years INT;
+
+
+UPDATE primary_data 
+SET days= DAY(STR_TO_DATE(date, '%Y-%m-%d')),
+    months= MONTH(STR_TO_DATE(date, '%Y-%m-%d')),
+    years= YEAR(STR_TO_DATE(date, '%Y-%m-%d'));
+    
+UPDATE primary_data 
+SET months = DATE_FORMAT(STR_TO_DATE(date, '%Y-%m-%d'), '%M');
+    
+
+   
+SELECT days , months , years FROM primary_data ;
+
+
+-------------------------------------------------------------------------------------------------
+
+
+-- DROP Columns ERROR values in table of desease_and_bad_happites
+
+ALTER TABLE desease_and_bad_happites 
+DROP COLUMN female_smokers ,
+DROP COLUMN male_smokers ;
+
+-- DELETE unused columns 
+ALTER TABLE covid_data 
+DROP COLUMN new_cases_smoothed ,
+DROP COLUMN new_deaths_smoothed,
+DROP COLUMN total_cases_per_million,
+DROP COLUMN new_cases_per_million,
+DROP COLUMN new_cases_smoothed_per_million,
+DROP COLUMN total_deaths_per_million,
+DROP COLUMN new_deaths_per_million,
+DROP COLUMN new_deaths_smoothed_per_million,
+DROP COLUMN icu_patients_per_million,
+DROP COLUMN hosp_patients_per_million,
+DROP COLUMN weekly_hosp_admissions_per_million,
+DROP COLUMN weekly_icu_admissions_per_million,
+DROP COLUMN total_tests_per_thousand,
+DROP COLUMN new_tests_per_thousand,
+DROP COLUMN new_tests_smoothed,
+DROP COLUMN new_tests_smoothed_per_thousand,
+DROP COLUMN tests_per_case,
+DROP COLUMN tests_units,
+DROP COLUMN new_vaccinations_smoothed,
+DROP COLUMN total_vaccinations_per_hundred,
+DROP COLUMN people_vaccinated_per_hundred,
+DROP COLUMN people_fully_vaccinated_per_hundred,
+DROP COLUMN total_boosters_per_hundred,
+DROP COLUMN new_vaccinations_smoothed_per_million,
+DROP COLUMN new_people_vaccinated_smoothed,
+DROP COLUMN new_people_vaccinated_smoothed_per_hundred,
+DROP COLUMN excess_mortality_cumulative_absolute,
+DROP COLUMN excess_mortality_cumulative,
+DROP COLUMN excess_mortality,
+DROP COLUMN excess_mortality_cumulative_per_million ;
+
+------------------------------------------------------------------------------------------------
+
+-- Analysis :
+
+
+-- Step 1 : Percentage of total cases and deathes for all years
+
+SELECT
+    pd.id,
+    pd.location,
+    pd.date,
+    pd.years,
+    pd.population,
+    SUM(tpcd.new_cases) AS "Total Cases Per Location",
+    SUM(tpcd.new_deaths) AS "Total Deaths Per Location",
+    CONCAT(ROUND((SUM(tpcd.new_deaths) / SUM(tpcd.new_cases)) * 100, 2), '%') AS "Percentage of Death per Case",
+    CONCAT(ROUND((SUM(tpcd.new_cases) / pd.population) * 100, 2), '%') AS "Percentage of Cases Per Population",
+    CONCAT(ROUND((SUM(tpcd.new_deaths) / pd.population) * 100, 2), '%') AS "Percentage of Deaths Per Population"
+FROM
+    primary_data pd 
+JOIN
+    total_percentage_cases_deaths_vs_population tpcd ON pd.id = tpcd.id
+WHERE
+      tpcd.new_cases > 100 AND tpcd.new_deaths > 0 
+GROUP BY
+    pd.location , pd.years ;
+
+
+
+
+-- new cases & deaths
+
+SELECT 
+        pd.id ,
+        pd.location ,
+        pd.date , 
+        cd.new_cases ,
+        cd.new_deaths 
+FROM        
+     primary_data pd
+JOIN 
+     covid_data cd ON pd.id = cd.id;
+       
+
+
+
+-- total patients in hospital per year and location
+SELECT 
+     pd.id,
+     pd.location,
+     pd.date,
+     pd.years ,
+     SUM(hsp.`icu_patients`) AS Total_icu_patients,
+     SUM(hsp.hosp_patients) AS Total_hosp_patients ,    
+     hsp.hospital_beds_per_thousand,
+     ROUND((pd.population/1000)*hsp.hospital_beds_per_thousand,2) AS "Total beds per location" ,
+     CONCAT(ROUND((SUM(tpcd.new_deaths) / SUM(tpcd.new_cases)) * 100, 2), '%') AS "Percentage of Death per Case"
+FROM primary_data pd 
+JOIN
+health_sector_preparations hsp ON pd.id = hsp.id 
+JOIN
+    total_percentage_cases_deaths_vs_population tpcd ON pd.id = tpcd.id
+WHERE  hsp.`icu_patients` > 0 AND hsp.hosp_patients > 0 
+GROUP BY pd.location,pd.years ;
+
+
+
+-- total tests per population
+SELECT
+      pd.id ,
+      pd.location ,
+      pd.date ,
+      pd.years ,
+      SUM(hsp.`new_tests`) AS "Total tests per year",
+      pd.population ,
+      CONCAT(ROUND(SUM(hsp.`new_tests`) /pd.population * 100, 2), '%') AS "Percentage_of_tests_per_population"
+
+FROM
+    primary_data pd 
+JOIN
+     health_sector_preparations hsp ON pd.id = hsp.id
+WHERE
+    pd.years AND hsp.`new_tests` > 0
+GROUP BY
+    pd.location , pd.years ;
+
+
+
+
+
+-- total Admissions in hospital per year and location
+SELECT 
+      pd.id ,
+      pd.location,
+      pd.date ,
+      pd.years ,
+      SUM(hsp.`weekly_icu_admissions`) AS Total_icu_admissions,
+      SUM(hsp.`weekly_hosp_admissions`) AS Total_hosp_admissions 
+FROM primary_data pd 
+JOIN
+health_sector_preparations hsp ON pd.id = hsp.id 
+WHERE  hsp.`weekly_icu_admissions` > 0 AND hsp.`weekly_hosp_admissions` > 0 
+GROUP BY pd.location,pd.years ;
+
+
+
+
+
+
+-- correlation between human_development_index , gdp_per_capita on death_population_ratio , life_expectancy
+SELECT 
+    pd.id ,
+    pd.location, 
+    pd.date ,
+    lehdi.human_development_index,
+    ROUND(poc.gdp_per_capita, 0) AS gdp_per_capita,
+    CONCAT(ROUND(tpcd.total_deaths / pd.population * 100, 2), '%') AS death_population_ratio,
+    lehdi.life_expectancy
+FROM 
+    primary_data pd
+JOIN 
+    life_expectancy_and_human_development_index lehdi ON pd.id = lehdi.id
+JOIN 
+    total_percentage_cases_deaths_vs_population tpcd ON pd.id = tpcd.id
+JOIN 
+    preperation_of_country poc ON pd.id = poc.id
+WHERE 
+    lehdi.life_expectancy > 0 
+    AND lehdi.human_development_index > 0 
+    AND pd.date IN ('2023-12-19') 
+    AND tpcd.total_deaths > 100
+    AND poc.gdp_per_capita > 0
+GROUP BY 
+    pd.location;
+
+
+
+
+-- Correlation between handwashing_facilities and Percentage of Cases Per Population
+SELECT
+      pd.id ,
+      pd.location ,
+      pd.date ,
+      ROUND(poc.`handwashing_facilities`) AS "handwashing facilities per location",
+      CONCAT(ROUND((tpcd.total_cases / pd.population) * 100 , 2) , "%" ) AS "Percentage of Cases Per Population" 
+FROM primary_data pd 
+JOIN 
+preperation_of_country poc ON pd.id = poc.id
+JOIN
+total_percentage_cases_deaths_vs_population tpcd ON pd.id = tpcd.id 
+WHERE tpcd.total_cases > 0 AND poc.`handwashing_facilities` > 0 AND pd.date IN ('2023-12-19')
+GROUP BY location ;
+
+
+
+
+
+
+-- Total Vaccinations per Population 
+SELECT 
+      pd.id ,
+      pd.location ,
+      pd.date ,
+      pd.years ,
+      pd.population ,
+      SUM(vpp.`new_vaccinations`) AS "Total vaccinations",
+      CONCAT(ROUND((SUM(vpp.`new_vaccinations`)/pd.population)*100,2),"%") AS "Total vaccinations per population",
+      CONCAT(ROUND((SUM(tpcd.new_cases) / pd.population) * 100, 2), '%') AS "Percentage of Cases Per Population"
+FROM primary_data pd
+JOIN 
+vaccination_per_population vpp ON pd.id = vpp.id
+JOIN
+    total_percentage_cases_deaths_vs_population tpcd ON pd.id = tpcd.id
+WHERE vpp.`new_vaccinations` > 0 
+GROUP BY pd.location , pd.years ; 
+
+
+
+
+
+
+
